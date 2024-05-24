@@ -1,65 +1,62 @@
+import sqlite3
+
 class GestorProductos:
     def __init__(self):
-        self.cantidad = []
-        self.producto = []
-        self.precio = []
+        self.conexion = sqlite3.connect('productos.db')
+        self.cursor = self.conexion.cursor()
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS productos (
+                                id INTEGER PRIMARY KEY,
+                                cantidad INTEGER,
+                                nombre TEXT,
+                                precio REAL
+                              )''')
+        self.conexion.commit()
+
+    def __del__(self):
+        self.conexion.close()
 
     def añadir_producto(self):
         cantidad = int(input('Ingrese la cantidad del producto: '))
         nombre = input('Ingrese el nombre del producto: ')
         precio = float(input('Ingrese el precio del producto: '))
         
-        self.cantidad.append(cantidad)
-        self.producto.append(nombre)
-        self.precio.append(precio)
+        self.cursor.execute('''INSERT INTO productos (cantidad, nombre, precio) 
+                               VALUES (?, ?, ?)''', (cantidad, nombre, precio))
+        self.conexion.commit()
         print('Producto añadido correctamente.')
 
     def buscar_producto(self):
         nombre = input('Ingrese el nombre del producto: ')
-        try:
-            index = self.producto.index(nombre)
-            print(f'Cantidad: {self.cantidad[index]}')
-            print(f'Precio: {self.precio[index]}')
-        except ValueError:
+        self.cursor.execute('''SELECT cantidad, precio FROM productos WHERE nombre = ?''', (nombre,))
+        producto = self.cursor.fetchone()
+        if producto:
+            print(f'Cantidad: {producto[0]}')
+            print(f'Precio: {producto[1]}')
+        else:
             print('El producto no está en la lista.')
 
     def modificar_producto(self):
         nombre = input('Ingrese el nombre del producto que quiera modificar: ')
-        try:
-            index = self.producto.index(nombre)
+        self.cursor.execute('''SELECT id FROM productos WHERE nombre = ?''', (nombre,))
+        producto = self.cursor.fetchone()
+        if producto:
             cantidad = int(input('Ingrese la nueva cantidad del producto: '))
             precio = float(input('Ingrese el nuevo precio del producto: '))
-            
-            self.cantidad[index] = cantidad
-            self.precio[index] = precio
+            self.cursor.execute('''UPDATE productos SET cantidad = ?, precio = ? WHERE nombre = ?''',
+                                (cantidad, precio, nombre))
+            self.conexion.commit()
             print('Producto modificado correctamente.')
-        except ValueError:
+        else:
             print('El producto no está en la lista.')
 
     def ver_productos(self):
-        for i in range(len(self.producto)):
-            print(f'Producto: {self.producto[i]}, Cantidad: {self.cantidad[i]}, Precio: {self.precio[i]}')
-
-    def guardar_datos(self):
-        with open('productos.txt', 'w') as archivo:
-            for i in range(len(self.producto)):
-                archivo.write(f"{self.cantidad[i]},{self.producto[i]},{self.precio[i]}\n")
-
-    def cargar_datos(self):
-        try:
-            with open('productos.txt', 'r') as archivo:
-                for linea in archivo:
-                    cantidad, nombre, precio = linea.strip().split(',')
-                    self.cantidad.append(int(cantidad))
-                    self.producto.append(nombre)
-                    self.precio.append(float(precio))
-        except FileNotFoundError:
-            print("No se encontró el archivo de datos.")
-
+        self.cursor.execute('''SELECT * FROM productos''')
+        productos = self.cursor.fetchall()
+        for producto in productos:
+            print(f'Producto: {producto[2]}, Cantidad: {producto[1]}, Precio: {producto[3]}')
 
 def main():
     gestor = GestorProductos()
-    gestor.cargar_datos()
 
     while True:
         print("""
@@ -73,20 +70,16 @@ def main():
         respuesta = input('Ingrese su opción: ')
         if respuesta == '1':
             gestor.añadir_producto()
-            gestor.guardar_datos()
         elif respuesta == '2':
             gestor.buscar_producto()
         elif respuesta == '3':
             gestor.modificar_producto()
-            gestor.guardar_datos()
         elif respuesta == '4':
             gestor.ver_productos()
         elif respuesta == '5':
-            gestor.guardar_datos()
             break
         else:
             print('Opción no válida. Intente de nuevo.')
-
 
 if __name__ == "__main__":
     print('Bienvenido'.center(60, '-'))
