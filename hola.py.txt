@@ -1,0 +1,36 @@
+class Producto:
+    def __init__(self, nombre, valor, descripcion, cantidad):
+        self.nombre = nombre
+        self.valor = valor
+        self.descripcion = descripcion
+        self.cantidad = cantidad
+
+def main():
+    # Solicitamos la cantidad de productos a ingresar
+    cantidad_productos = int(input("¿Cuántos productos deseas ingresar? "))
+
+    # Creamos una lista para almacenar los productos
+    lista_productos = []
+
+    # Pedimos los datos para cada producto
+    for i in range(cantidad_productos):
+        nombre = input(f"Nombre del producto {i + 1}: ")
+        valor = float(input(f"Valor del producto {i + 1}: "))
+        descripcion = input(f"Descripción del producto {i + 1}: ")
+        cantidad = int(input(f"Cantidad del producto {i + 1}: "))
+
+        # Creamos un objeto Producto y lo agregamos a la lista
+        producto = Producto(nombre, valor, descripcion, cantidad)
+        lista_productos.append(producto)
+
+    # Mostramos los productos ingresados
+    print("\nProductos ingresados:")
+    for producto in lista_productos:
+        print(f"Nombre: {producto.nombre}")
+        print(f"Descripción: {producto.descripcion}")
+        print(f"Valor: {producto.valor}")
+        print(f"Cantidad: {producto.cantidad}")
+        print()
+
+if __name__ == "__main__":
+    main()
