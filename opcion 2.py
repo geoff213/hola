@@ -61,8 +61,13 @@ class GestorProductos:
     def ver_productos(self):
         self.cursor.execute('''SELECT * FROM productos''')
         productos = self.cursor.fetchall()
-        for producto in productos:
-            print(f'Producto: {producto[2]}, Cantidad: {producto[1]}, Precio: {producto[3]}')
+        if productos:
+            print('{:<10} {:<20} {:<10} {:<10}'.format('ID', 'Producto', 'Cantidad', 'Precio'))
+            print('-' * 50)
+            for producto in productos:
+                print('{:<10} {:<20} {:<10} {:<10}'.format(producto[0], producto[2], producto[1], producto[3]))
+        else:
+            print('No hay productos en el stock.')
 
     def eliminar_producto(self):
         nombre = input('Ingrese el nombre del producto que desea eliminar o "exit" para salir: ')
@@ -121,9 +126,10 @@ class GestorProductos:
         self.cursor.execute('''SELECT * FROM productos''')
         productos = self.cursor.fetchall()
         if productos:
-            print('Stock de productos:')
+            print('{:<10} {:<20} {:<10}'.format('ID', 'Producto', 'Cantidad'))
+            print('-' * 40)
             for producto in productos:
-                print(f'Producto: {producto[2]}, Cantidad: {producto[1]}')
+                print('{:<10} {:<20} {:<10}'.format(producto[0], producto[2], producto[1]))
         else:
             print('No hay productos en el stock.')
 
@@ -211,4 +217,6 @@ def main():
 if __name__ == "__main__":
     print('Bienvenido'.center(60, '-'))
     main()
+
+
 
