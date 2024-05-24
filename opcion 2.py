@@ -65,10 +65,15 @@ class GestorProductos:
             print(f'Producto: {producto[2]}, Cantidad: {producto[1]}, Precio: {producto[3]}')
 
     def eliminar_producto(self):
-        nombre = input('Ingrese el nombre del producto que desea eliminar: ')
+        nombre = input('Ingrese el nombre del producto que desea eliminar o "exit" para salir: ')
+        if nombre.lower() == 'exit':
+            return
         self.cursor.execute('''DELETE FROM productos WHERE nombre = ?''', (nombre,))
-        self.conexion.commit()
-        print('Producto eliminado correctamente.')
+        if self.cursor.rowcount > 0:
+            self.conexion.commit()
+            print('Producto eliminado correctamente.')
+        else:
+            print('El producto no está en la lista.')
 
     def productos_sin_stock(self):
         self.cursor.execute('''SELECT * FROM productos WHERE cantidad = 0''')
@@ -102,13 +107,13 @@ class GestorProductos:
             print('El producto no está en la lista.')
 
     def ver_ventas(self):
-        self.cursor.execute('''SELECT ventas.id, productos.nombre, ventas.cantidad, ventas.fecha 
+        self.cursor.execute('''SELECT ventas.id, ventas.id_producto, productos.nombre, ventas.cantidad, ventas.fecha 
                                FROM ventas JOIN productos ON ventas.id_producto = productos.id''')
         ventas = self.cursor.fetchall()
         if ventas:
             print('Registro de ventas:')
             for venta in ventas:
-                print(f'ID: {venta[0]}, Producto: {venta[1]}, Cantidad: {venta[2]}, Fecha: {venta[3]}')
+                print(f'ID Venta: {venta[0]}, ID Producto: {venta[1]}, Producto: {venta[2]}, Cantidad: {venta[3]}, Fecha: {venta[4]}')
         else:
             print('No hay ventas registradas.')
 
@@ -121,6 +126,25 @@ class GestorProductos:
                 print(f'Producto: {producto[2]}, Cantidad: {producto[1]}')
         else:
             print('No hay productos en el stock.')
+
+    def eliminar_venta(self):
+        id_venta = self.validar_entero('Ingrese el ID de la venta que desea eliminar o "0" para salir: ')
+        if id_venta == 0:
+            return
+        # Check if the sale exists
+        self.cursor.execute('''SELECT * FROM ventas WHERE id = ?''', (id_venta,))
+        venta = self.cursor.fetchone()
+        if venta:
+            id_producto = venta[1]
+            cantidad = venta[2]
+            # Revert the sale by adding back the sold quantity to the product's stock
+            self.cursor.execute('''UPDATE productos SET cantidad = cantidad + ? WHERE id = ?''', (cantidad, id_producto))
+            # Delete the sale record
+            self.cursor.execute('''DELETE FROM ventas WHERE id = ?''', (id_venta,))
+            self.conexion.commit()
+            print('Venta eliminada correctamente.')
+        else:
+            print('La venta no existe.')
 
     @staticmethod
     def validar_entero(mensaje):
@@ -154,7 +178,8 @@ def main():
         (7) Ingresar Venta
         (8) Ver Ventas
         (9) Ver Stock
-        (10) Salir
+        (10) Eliminar Venta
+        (11) Salir
         """)
 
         respuesta = input('Ingrese su opción: ')
@@ -177,6 +202,8 @@ def main():
         elif respuesta == '9':
             gestor.ver_stock()
         elif respuesta == '10':
+            gestor.eliminar_venta()
+        elif respuesta == '11':
             break
         else:
             print('Opción no válida. Intente de nuevo.')
@@ -184,3 +211,4 @@ def main():
 if __name__ == "__main__":
     print('Bienvenido'.center(60, '-'))
     main()
+
