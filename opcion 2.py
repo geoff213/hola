@@ -14,9 +14,10 @@ class GestorProductos:
         # Create ventas table for sales tracking
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS ventas (
                                     id INTEGER PRIMARY KEY,
-                                    nombre_producto TEXT,
+                                    id_producto INTEGER,
                                     cantidad INTEGER,
-                                    fecha DATE
+                                    fecha DATE,
+                                    FOREIGN KEY(id_producto) REFERENCES productos(id)
                                 )''')
         self.conexion.commit()
 
@@ -83,25 +84,43 @@ class GestorProductos:
         nombre_producto = input('Ingrese el nombre del producto vendido: ')
         cantidad = self.validar_entero('Ingrese la cantidad vendida: ')
         fecha = datetime.now().strftime('%Y-%m-%d')
-        
-        # Update product quantity
-        self.cursor.execute('''UPDATE productos SET cantidad = cantidad - ? WHERE nombre = ?''',
-                            (cantidad, nombre_producto))
-        # Record sale
-        self.cursor.execute('''INSERT INTO ventas (nombre_producto, cantidad, fecha) VALUES (?, ?, ?)''',
-                            (nombre_producto, cantidad, fecha))
-        self.conexion.commit()
-        print('Venta registrada correctamente.')
+
+        # Check if the product exists in the database
+        self.cursor.execute('''SELECT id FROM productos WHERE nombre = ?''', (nombre_producto,))
+        producto = self.cursor.fetchone()
+        if producto:
+            id_producto = producto[0]
+            # Update product quantity
+            self.cursor.execute('''UPDATE productos SET cantidad = cantidad - ? WHERE id = ?''',
+                                (cantidad, id_producto))
+            # Record sale
+            self.cursor.execute('''INSERT INTO ventas (id_producto, cantidad, fecha) VALUES (?, ?, ?)''',
+                                (id_producto, cantidad, fecha))
+            self.conexion.commit()
+            print('Venta registrada correctamente.')
+        else:
+            print('El producto no está en la lista.')
 
     def ver_ventas(self):
-        self.cursor.execute('''SELECT * FROM ventas''')
+        self.cursor.execute('''SELECT ventas.id, productos.nombre, ventas.cantidad, ventas.fecha 
+                               FROM ventas JOIN productos ON ventas.id_producto = productos.id''')
         ventas = self.cursor.fetchall()
         if ventas:
             print('Registro de ventas:')
             for venta in ventas:
-                print(f'Producto: {venta[1]}, Cantidad: {venta[2]}, Fecha: {venta[3]}')
+                print(f'ID: {venta[0]}, Producto: {venta[1]}, Cantidad: {venta[2]}, Fecha: {venta[3]}')
         else:
             print('No hay ventas registradas.')
+
+    def ver_stock(self):
+        self.cursor.execute('''SELECT * FROM productos''')
+        productos = self.cursor.fetchall()
+        if productos:
+            print('Stock de productos:')
+            for producto in productos:
+                print(f'Producto: {producto[2]}, Cantidad: {producto[1]}')
+        else:
+            print('No hay productos en el stock.')
 
     @staticmethod
     def validar_entero(mensaje):
@@ -134,7 +153,8 @@ def main():
         (6) Productos sin stock
         (7) Ingresar Venta
         (8) Ver Ventas
-        (9) Salir
+        (9) Ver Stock
+        (10) Salir
         """)
 
         respuesta = input('Ingrese su opción: ')
@@ -155,6 +175,8 @@ def main():
         elif respuesta == '8':
             gestor.ver_ventas()
         elif respuesta == '9':
+            gestor.ver_stock()
+        elif respuesta == '10':
             break
         else:
             print('Opción no válida. Intente de nuevo.')
