@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime
 
 class GestorProductos:
     def __init__(self):
@@ -10,15 +11,22 @@ class GestorProductos:
                                     nombre TEXT,
                                     precio REAL
                                 )''')
+        # Create ventas table for sales tracking
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS ventas (
+                                    id INTEGER PRIMARY KEY,
+                                    nombre_producto TEXT,
+                                    cantidad INTEGER,
+                                    fecha DATE
+                                )''')
         self.conexion.commit()
 
     def __del__(self):
         self.conexion.close()
 
     def añadir_producto(self):
-        cantidad = int(input('Ingrese la cantidad del producto: '))
         nombre = input('Ingrese el nombre del producto: ')
-        precio = float(input('Ingrese el precio del producto: '))
+        cantidad = self.validar_entero('Ingrese la cantidad del producto: ')
+        precio = self.validar_float('Ingrese el precio del producto: ')
         
         self.cursor.execute('''INSERT INTO productos (cantidad, nombre, precio) 
                                VALUES (?, ?, ?)''', (cantidad, nombre, precio))
@@ -40,8 +48,8 @@ class GestorProductos:
         self.cursor.execute('''SELECT * FROM productos WHERE nombre = ?''', (nombre,))
         producto = self.cursor.fetchone()
         if producto:
-            cantidad = int(input('Ingrese la nueva cantidad del producto: '))
-            precio = float(input('Ingrese el nuevo precio del producto: '))
+            cantidad = self.validar_entero('Ingrese la nueva cantidad del producto: ')
+            precio = self.validar_float('Ingrese el nuevo precio del producto: ')
             self.cursor.execute('''UPDATE productos SET cantidad = ?, precio = ? WHERE nombre = ?''',
                                 (cantidad, precio, nombre))
             self.conexion.commit()
@@ -71,14 +79,47 @@ class GestorProductos:
         else:
             print('No hay productos sin stock.')
 
-    def cantidad_ventas_producto(self):
-        nombre = input('Ingrese el nombre del producto para ver la cantidad de ventas: ')
-        self.cursor.execute('''SELECT SUM(cantidad) FROM ventas WHERE nombre_producto = ?''', (nombre,))
-        cantidad_ventas = self.cursor.fetchone()[0]
-        if cantidad_ventas:
-            print(f'Cantidad de ventas del producto "{nombre}": {cantidad_ventas}')
+    def ingresar_venta(self):
+        nombre_producto = input('Ingrese el nombre del producto vendido: ')
+        cantidad = self.validar_entero('Ingrese la cantidad vendida: ')
+        fecha = datetime.now().strftime('%Y-%m-%d')
+        
+        # Update product quantity
+        self.cursor.execute('''UPDATE productos SET cantidad = cantidad - ? WHERE nombre = ?''',
+                            (cantidad, nombre_producto))
+        # Record sale
+        self.cursor.execute('''INSERT INTO ventas (nombre_producto, cantidad, fecha) VALUES (?, ?, ?)''',
+                            (nombre_producto, cantidad, fecha))
+        self.conexion.commit()
+        print('Venta registrada correctamente.')
+
+    def ver_ventas(self):
+        self.cursor.execute('''SELECT * FROM ventas''')
+        ventas = self.cursor.fetchall()
+        if ventas:
+            print('Registro de ventas:')
+            for venta in ventas:
+                print(f'Producto: {venta[1]}, Cantidad: {venta[2]}, Fecha: {venta[3]}')
         else:
-            print(f'El producto "{nombre}" no ha sido vendido.')
+            print('No hay ventas registradas.')
+
+    @staticmethod
+    def validar_entero(mensaje):
+        while True:
+            try:
+                valor = int(input(mensaje))
+                return valor
+            except ValueError:
+                print('Error: Por favor, ingrese un número entero válido.')
+
+    @staticmethod
+    def validar_float(mensaje):
+        while True:
+            try:
+                valor = float(input(mensaje))
+                return valor
+            except ValueError:
+                print('Error: Por favor, ingrese un número decimal válido.')
 
 def main():
     gestor = GestorProductos()
@@ -91,8 +132,9 @@ def main():
         (4) Eliminar Producto
         (5) Ver Productos
         (6) Productos sin stock
-        (7) Cantidad de ventas por producto
-        (8) Salir
+        (7) Ingresar Venta
+        (8) Ver Ventas
+        (9) Salir
         """)
 
         respuesta = input('Ingrese su opción: ')
@@ -109,8 +151,10 @@ def main():
         elif respuesta == '6':
             gestor.productos_sin_stock()
         elif respuesta == '7':
-            gestor.cantidad_ventas_producto()
+            gestor.ingresar_venta()
         elif respuesta == '8':
+            gestor.ver_ventas()
+        elif respuesta == '9':
             break
         else:
             print('Opción no válida. Intente de nuevo.')
