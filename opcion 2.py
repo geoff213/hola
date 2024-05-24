@@ -62,10 +62,12 @@ class GestorProductos:
         self.cursor.execute('''SELECT * FROM productos''')
         productos = self.cursor.fetchall()
         if productos:
+            print('-' * 45)
             print('{:<10} {:<20} {:<10} {:<10}'.format('ID', 'Producto', 'Cantidad', 'Precio'))
-            print('-' * 50)
+            print('-' * 45)
             for producto in productos:
                 print('{:<10} {:<20} {:<10} {:<10}'.format(producto[0], producto[2], producto[1], producto[3]))
+            print('-' * 45)
         else:
             print('No hay productos en el stock.')
 
@@ -116,9 +118,12 @@ class GestorProductos:
                                FROM ventas JOIN productos ON ventas.id_producto = productos.id''')
         ventas = self.cursor.fetchall()
         if ventas:
-            print('Registro de ventas:')
+            print('-' * 62)
+            print('{:<10} {:<12} {:<20} {:<10} {:<10}'.format('ID Venta', 'ID Producto', 'Producto', 'Cantidad', 'Fecha'))
+            print('-' * 62)
             for venta in ventas:
-                print(f'ID Venta: {venta[0]}, ID Producto: {venta[1]}, Producto: {venta[2]}, Cantidad: {venta[3]}, Fecha: {venta[4]}')
+                print('{:<10} {:<12} {:<20} {:<10} {:<10}'.format(venta[0], venta[1], venta[2], venta[3], venta[4]))
+            print('-' * 62)
         else:
             print('No hay ventas registradas.')
 
@@ -126,10 +131,12 @@ class GestorProductos:
         self.cursor.execute('''SELECT * FROM productos''')
         productos = self.cursor.fetchall()
         if productos:
+            print('-' * 35)
             print('{:<10} {:<20} {:<10}'.format('ID', 'Producto', 'Cantidad'))
-            print('-' * 40)
+            print('-' * 35)
             for producto in productos:
                 print('{:<10} {:<20} {:<10}'.format(producto[0], producto[2], producto[1]))
+            print('-' * 35)
         else:
             print('No hay productos en el stock.')
 
@@ -175,17 +182,22 @@ def main():
 
     while True:
         print("""
+        ------------ Gestión de Productos ------------
         (1) Añadir productos
         (2) Buscar Productos
         (3) Modificar productos
         (4) Eliminar Producto
         (5) Ver Productos
         (6) Productos sin stock
+        ------------ Gestión de Ventas ------------
         (7) Ingresar Venta
         (8) Ver Ventas
+        ------------ Gestión de Stock ------------
         (9) Ver Stock
+        ---------------------------------------------
         (10) Eliminar Venta
         (11) Salir
+        ---------------------------------------------
         """)
 
         respuesta = input('Ingrese su opción: ')
@@ -217,6 +229,3 @@ def main():
 if __name__ == "__main__":
     print('Bienvenido'.center(60, '-'))
     main()
-
-
-
