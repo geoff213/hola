@@ -1,9 +1,16 @@
-import pyodbc
+import sqlite3
 
 class GestorProductos:
     def __init__(self):
-        self.conexion = pyodbc.connect('DRIVER={SQL Server};SERVER=tu_servidor;DATABASE=nombre_base_de_datos;UID=usuario;PWD=contraseña')
+        self.conexion = sqlite3.connect('productos.db')
         self.cursor = self.conexion.cursor()
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS productos (
+                                    id INTEGER PRIMARY KEY,
+                                    cantidad INTEGER,
+                                    nombre TEXT,
+                                    precio REAL
+                                )''')
+        self.conexion.commit()
 
     def __del__(self):
         self.conexion.close()
@@ -46,7 +53,32 @@ class GestorProductos:
         self.cursor.execute('''SELECT * FROM productos''')
         productos = self.cursor.fetchall()
         for producto in productos:
-            print(f'Producto: {producto.nombre}, Cantidad: {producto.cantidad}, Precio: {producto.precio}')
+            print(f'Producto: {producto[2]}, Cantidad: {producto[1]}, Precio: {producto[3]}')
+
+    def eliminar_producto(self):
+        nombre = input('Ingrese el nombre del producto que desea eliminar: ')
+        self.cursor.execute('''DELETE FROM productos WHERE nombre = ?''', (nombre,))
+        self.conexion.commit()
+        print('Producto eliminado correctamente.')
+
+    def productos_sin_stock(self):
+        self.cursor.execute('''SELECT * FROM productos WHERE cantidad = 0''')
+        productos = self.cursor.fetchall()
+        if productos:
+            print('Productos sin stock:')
+            for producto in productos:
+                print(f'Producto: {producto[2]}, Cantidad: {producto[1]}, Precio: {producto[3]}')
+        else:
+            print('No hay productos sin stock.')
+
+    def cantidad_ventas_producto(self):
+        nombre = input('Ingrese el nombre del producto para ver la cantidad de ventas: ')
+        self.cursor.execute('''SELECT SUM(cantidad) FROM ventas WHERE nombre_producto = ?''', (nombre,))
+        cantidad_ventas = self.cursor.fetchone()[0]
+        if cantidad_ventas:
+            print(f'Cantidad de ventas del producto "{nombre}": {cantidad_ventas}')
+        else:
+            print(f'El producto "{nombre}" no ha sido vendido.')
 
 def main():
     gestor = GestorProductos()
@@ -56,8 +88,11 @@ def main():
         (1) Añadir productos
         (2) Buscar Productos
         (3) Modificar productos
-        (4) Ver Productos
-        (5) Salir
+        (4) Eliminar Producto
+        (5) Ver Productos
+        (6) Productos sin stock
+        (7) Cantidad de ventas por producto
+        (8) Salir
         """)
 
         respuesta = input('Ingrese su opción: ')
@@ -68,8 +103,14 @@ def main():
         elif respuesta == '3':
             gestor.modificar_producto()
         elif respuesta == '4':
-            gestor.ver_productos()
+            gestor.eliminar_producto()
         elif respuesta == '5':
+            gestor.ver_productos()
+        elif respuesta == '6':
+            gestor.productos_sin_stock()
+        elif respuesta == '7':
+            gestor.cantidad_ventas_producto()
+        elif respuesta == '8':
             break
         else:
             print('Opción no válida. Intente de nuevo.')

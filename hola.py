@@ -15,10 +15,33 @@ class GestorProductos:
     def __del__(self):
         self.conexion.close()
 
-    def añadir_producto(self):
-        cantidad = int(input('Ingrese la cantidad del producto: '))
-        nombre = input('Ingrese el nombre del producto: ')
-        precio = float(input('Ingrese el precio del producto: '))
+    def ingresar_numero(self, mensaje):
+        while True:
+            try:
+                valor = input(mensaje)
+                return int(valor)
+            except ValueError:
+                print("Por favor, ingrese un número válido.")
+
+    def ingresar_nombre(self, mensaje):
+        while True:
+            valor = input(mensaje)
+            if valor.strip():
+                return valor
+            print("Por favor, ingrese un nombre válido.")
+
+    def ingresar_precio(self, mensaje):
+        while True:
+            try:
+                valor = input(mensaje)
+                return float(valor)
+            except ValueError:
+                print("Por favor, ingrese un precio válido.")
+
+    def ingresar_producto(self):
+        cantidad = self.ingresar_numero('Ingrese la cantidad del producto: ')
+        nombre = self.ingresar_nombre('Ingrese el nombre del producto: ')
+        precio = self.ingresar_precio('Ingrese el precio del producto: ')
         
         self.cursor.execute('''INSERT INTO productos (cantidad, nombre, precio) 
                                VALUES (?, ?, ?)''', (cantidad, nombre, precio))
@@ -26,7 +49,7 @@ class GestorProductos:
         print('Producto añadido correctamente.')
 
     def buscar_producto(self):
-        nombre = input('Ingrese el nombre del producto: ')
+        nombre = self.ingresar_nombre('Ingrese el nombre del producto: ')
         self.cursor.execute('''SELECT cantidad, precio FROM productos WHERE nombre = ?''', (nombre,))
         producto = self.cursor.fetchone()
         if producto:
@@ -36,12 +59,12 @@ class GestorProductos:
             print('El producto no está en la lista.')
 
     def modificar_producto(self):
-        nombre = input('Ingrese el nombre del producto que quiera modificar: ')
-        self.cursor.execute('''SELECT id FROM productos WHERE nombre = ?''', (nombre,))
+        nombre = self.ingresar_nombre('Ingrese el nombre del producto que quiera modificar: ')
+        self.cursor.execute('''SELECT * FROM productos WHERE nombre = ?''', (nombre,))
         producto = self.cursor.fetchone()
         if producto:
-            cantidad = int(input('Ingrese la nueva cantidad del producto: '))
-            precio = float(input('Ingrese el nuevo precio del producto: '))
+            cantidad = self.ingresar_numero('Ingrese la nueva cantidad del producto: ')
+            precio = self.ingresar_precio('Ingrese el nuevo precio del producto: ')
             self.cursor.execute('''UPDATE productos SET cantidad = ?, precio = ? WHERE nombre = ?''',
                                 (cantidad, precio, nombre))
             self.conexion.commit()
@@ -69,7 +92,7 @@ def main():
 
         respuesta = input('Ingrese su opción: ')
         if respuesta == '1':
-            gestor.añadir_producto()
+            gestor.ingresar_producto()
         elif respuesta == '2':
             gestor.buscar_producto()
         elif respuesta == '3':
@@ -83,4 +106,3 @@ def main():
 
 if __name__ == "__main__":
     print('Bienvenido'.center(60, '-'))
-    main()
