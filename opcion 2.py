@@ -41,7 +41,7 @@ class GestorProductos:
         Button(frame, text="Buscar Producto", command=self.buscar_producto, width=20, bg="#2196F3", fg="white").grid(row=1, column=1, sticky="ew", padx=5, pady=5)
         Button(frame, text="Modificar Producto", command=self.modificar_producto, width=20, bg="#FFC107", fg="white").grid(row=2, column=0, sticky="ew", padx=5, pady=5)
         Button(frame, text="Eliminar Producto", command=self.eliminar_producto, width=20, bg="#F44336", fg="white").grid(row=2, column=1, sticky="ew", padx=5, pady=5)
-        Button(frame, text="Ver Productos", command=self.ver_productos, width=20, bg="#9C27B0", fg="white").grid(row=3, column=0, sticky="ew", padx=5, pady=5)
+        #Button(frame, text="Ver Productos", command=self.ver_productos, width=20, bg="#9C27B0", fg="white").grid(row=3, column=0, sticky="ew", padx=5, pady=5)
         Button(frame, text="Productos Sin Stock", command=self.productos_sin_stock, width=20, bg="#00BCD4", fg="white").grid(row=3, column=1, sticky="ew", padx=5, pady=5)
         Button(frame, text="Ingresar Venta", command=self.ingresar_venta, width=20, bg="#FF9800", fg="white").grid(row=4, column=0, sticky="ew", padx=5, pady=5)
         Button(frame, text="Ver Ventas", command=self.ver_ventas, width=20, bg="#8BC34A", fg="white").grid(row=4, column=1, sticky="ew", padx=5, pady=5)
