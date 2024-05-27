@@ -118,9 +118,22 @@ class BaseDeDatos:
         self.conexion.commit()
 
     def obtener_todos_los_productos(self):
-        self.cursor.execute('''SELECT * FROM productos''')
-        productos = self.cursor.fetchall()
-        return self.cursor.fetchall()
+        try:
+            self.cursor.execute('''SELECT * FROM productos''')
+            productos = self.cursor.fetchall()
+            return productos
+        except sqlite3.Error as e:
+            print("Error al obtener productos:", e)
+            return []
+    def productos_sin_stock(self):
+        try:
+            self.cursor.execute('''SELECT * FROM productos WHERE cantidad = 0''')
+            productos = self.cursor.fetchall()
+            return productos
+        except sqlite3.Error as e:
+            print("Error al obtener productos sin stock:", e)
+            return []
+
     
 
 
@@ -138,19 +151,22 @@ class GestorProductosUI:
         frame = Frame(self.root, padx=20, pady=20)
         frame.pack(padx=10, pady=10)
         def setup_ui(self):
-
-
-                Label(frame, text="Gestión de Productos", font=("Helvetica", 16, "bold")).grid(row=0, columnspan=2, pady=10)
+    
+          
+         Label(frame, text="Gestión de Productos", font=("Helvetica", 16, "bold")).grid(row=0, columnspan=2, pady=10)
+        Button(frame, text="Ver Stock", command=self.ver_stock, width=20, bg="#9C27B0", fg="white").grid(row=5, column=0, sticky="ew", padx=5, pady=5)
         Button(frame, text="Añadir Producto", command=self.añadir_producto, width=20, bg="#4CAF50", fg="white").grid(row=1, column=0, sticky="ew", padx=5, pady=5)
-        Button(frame, text="Ver Todas las Ventas", command=self.ver_todas_ventas, width=20, bg="#FFC107", fg="white").grid(row=1, column=1, sticky="ew", padx=5, pady=5)
         Button(frame, text="Ver Ventas por Fecha", command=self.ver_ventas_por_fecha, width=20, bg="#00BCD4", fg="white").grid(row=2, column=0, sticky="ew", padx=5, pady=5)
+        Button(frame, text="Ver Todas las Ventas", command=self.ver_todas_ventas, width=20, bg="#FFC107", fg="white").grid(row=1, column=1, sticky="ew", padx=5, pady=5)
         Button(frame, text="Estadísticas de Ventas", command=self.estadisticas_ventas, width=20, bg="#E91E63", fg="white").grid(row=2, column=1, sticky="ew", padx=5, pady=5)
         Button(frame, text="Ingresar Stock", command=self.ingresar_stock, width=20, bg="#2196F3", fg="white").grid(row=2, column=0, sticky="ew", padx=5, pady=5)
         Button(frame, text="Registrar Venta", command=self.registrar_venta, width=20, bg="#FF9800", fg="white").grid(row=3, column=0, sticky="ew", padx=5, pady=5)
         Button(frame, text="Modificar Producto", command=self.modificar_producto, width=20, bg="#F44336", fg="white").grid(row=4, column=0, sticky="ew", padx=5, pady=5)
-        Button(frame, text="Ver Stock", command=self.ver_stock, width=20, bg="#9C27B0", fg="white").grid(row=5, column=0, sticky="ew", padx=5, pady=5)
+        Button(frame, text="Producto sin stock", command=self.productos_sin_stock, width=20, bg="#F44336", fg="white").grid(row=4, column=1, sticky="ew", padx=5, pady=5)
+
+
        
-    
+   
     def añadir_producto(self):
         cantidad = simpledialog.askinteger("Cantidad", "Ingrese la cantidad del producto:")
         if cantidad is None:
@@ -237,17 +253,6 @@ class GestorProductosUI:
 
         self.base_de_datos.modificar_producto(id_producto, nueva_cantidad, nuevo_nombre, nuevo_precio)
         messagebox.showinfo('Información', 'Producto modificado correctamente.')
-    
-    
-    def ver_stock(self):
-        productos = self.base_de_datos.obtener_todos_los_productos()
-        if productos:
-            mensaje = "Stock de Productos:\n\n"
-            for producto in productos:
-                mensaje += f"ID: {producto.id}\nNombre: {producto.nombre}\nCantidad: {producto.cantidad}\nPrecio: {producto.precio}\n\n"
-            messagebox.showinfo('Stock', mensaje)
-        else:
-            messagebox.showinfo('Stock', 'No hay productos en stock.')
 
     def ver_stock(self):
         productos = self.base_de_datos.obtener_todos_los_productos()
@@ -275,7 +280,15 @@ class GestorProductosUI:
         else:
             messagebox.showinfo('Información', 'No hay productos en el stock.')
 
-    
+    def productos_sin_stock(self):
+        productos_sin_stock = self.base_de_datos.productos_sin_stock()
+        if productos_sin_stock:
+            productos_info = 'Productos sin stock:\n'
+            for producto in productos_sin_stock:
+                productos_info += f'Producto: {producto[2]}, Cantidad: {producto[1]}, Precio: {producto[3]}\n'
+            messagebox.showinfo('Productos Sin Stock', productos_info)
+        else:
+            messagebox.showinfo('Información', 'No hay productos sin stock.')
 
 
 
