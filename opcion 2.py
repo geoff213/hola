@@ -192,8 +192,16 @@ class GestorProductos:
         if productos:
             stock_window = Toplevel(self.root)
             stock_window.title("Stock de Productos")
+            
+            # Create a Text widget with a Scrollbar
             stock_text = Text(stock_window, wrap="none")
-            stock_text.pack(expand=1, fill='both')
+            scrollbar_y = Scrollbar(stock_window, orient='vertical', command=stock_text.yview)
+            scrollbar_x = Scrollbar(stock_window, orient='horizontal', command=stock_text.xview)
+            stock_text.configure(yscrollcommand=scrollbar_y.set, xscrollcommand=scrollbar_x.set)
+            
+            stock_text.pack(side="left", fill="both", expand=True)
+            scrollbar_y.pack(side="right", fill="y")
+            scrollbar_x.pack(side="bottom", fill="x")
             
             stock_info = '-' * 45 + '\n'
             stock_info += '{:<10} {:<20} {:<10} {:<10}\n'.format('ID', 'Producto', 'Cantidad', 'Precio')
