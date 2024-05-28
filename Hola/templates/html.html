@@ -1,45 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galería de Imágenes</title>
+    <title>Web de Compras</title>
     <link rel="stylesheet" href="css/CSS.css">
 </head>
 <body>
-    <nav>
-        <ul class="navbar">
-            <li><a href="otra.html" id="gallery-btn">Galería</a></li>
-            <li><a href="hola.html" id="about-btn">Acerca de</a></li>
-        </ul>
-    </nav>
     <header>
-        <h1>Galería de Imágenes</h1>
+        <h1>Mi Tienda</h1>
     </header>
+    <nav>
+        <a href="#" id="gallery-btn">Galería</a>
+        <a href="#" id="about-btn">Acerca de</a>
+        <a href="#" id="contact-btn">Contacto</a>
+        <a href="#" id="cart-btn">Carrito (<span id="cart-count">0</span>)</a>
+    </nav>
     <main id="main-content"></main>
-    <main>
-        <div class="image-gallery">
-            <div class="image-box">
-                <img src="img/hola.avif" alt="Image 1">
-                <div class="description">Descripción de la Imagen 1</div>
-                <button >Ver Más</button>
-            </div>
-            <div class="image-box">
-                <img src="img/hola.avif" alt="Image 2">
-                <div class="description">Descripción de la Imagen 2</div>
-                <button>Ver Más</button>
-            </div>
-            <div class="image-box">
-                <img src="img/hola.avif" alt="Image 3">
-                <div class="description">Descripción de la Imagen 3</div>
-                <button>Ver Más</button>
-            </div>
-        </div>
-    </main>
+    <div id="cart-container">
+        <h2>Carrito de Compras</h2>
+        <ul id="cart-items"></ul>
+        <button id="checkout-btn">Comprar</button>
+    </div>
     <footer>
-        <div class="container">
-        <p>&copy; 2024 Galería de Imágenes. Todos los derechos reservados.</p>
+        <div class="social-icons">
+            <a href="https://facebook.com" target="_blank">Facebook</a>
+            <a href="https://twitter.com" target="_blank">Twitter</a>
+            <a href="https://instagram.com" target="_blank">Instagram</a>
+        </div>
+        <p>&copy; 2024 Mi Tienda</p>
     </footer>
+    <script src="hola.js"></script>
 </body>
-<script src="hola.js"></script>
 </html>
+

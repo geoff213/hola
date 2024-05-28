@@ -43,38 +43,41 @@ class BaseDeDatos:
         self.conexion.commit()
 
     def ejecutar_consulta(self, consulta, parametros=()):
-        self.cursor.execute(consulta, parametros)
-        self.conexion.commit()
+        try:
+            self.cursor.execute(consulta, parametros)
+            self.conexion.commit()
+        except sqlite3.Error as e:
+            print(f"Error al ejecutar consulta: {e}")
+            messagebox.showerror('Error', f"Error al ejecutar consulta: {e}")
 
     def obtener_producto_por_nombre(self, nombre):
         self.cursor.execute('''SELECT * FROM productos WHERE nombre = ?''', (nombre,))
         producto = self.cursor.fetchone()
-        if (producto):
+        if producto:
             return Producto(*producto)
         return None
 
     def obtener_producto_por_id(self, id):
         self.cursor.execute('''SELECT * FROM productos WHERE id = ?''', (id,))
         producto = self.cursor.fetchone()
-        if (producto):
+        if producto:
             return Producto(*producto)
         return None
 
     def agregar_producto(self, cantidad, nombre, precio):
-        self.cursor.execute('''INSERT INTO productos (cantidad, nombre, precio) VALUES (?, ?, ?)''', (cantidad, nombre, precio))
-        self.conexion.commit()
+        self.ejecutar_consulta('''INSERT INTO productos (cantidad, nombre, precio) VALUES (?, ?, ?)''', (cantidad, nombre, precio))
 
     def obtener_todas_ventas(self):
         self.cursor.execute('''SELECT * FROM ventas''')
         ventas = self.cursor.fetchall()
-        if (ventas):
+        if ventas:
             return [Venta(*venta) for venta in ventas]
         return []
 
     def obtener_ventas_por_fecha(self, fecha):
         self.cursor.execute('''SELECT * FROM ventas WHERE fecha = ?''', (fecha,))
         ventas = self.cursor.fetchall()
-        if (ventas):
+        if ventas:
             return [Venta(*venta) for venta in ventas]
         return []
 
@@ -85,27 +88,24 @@ class BaseDeDatos:
 
     def ingresar_stock(self, id_producto, cantidad):
         producto = self.obtener_producto_por_id(id_producto)
-        if (producto):
+        if producto:
             nueva_cantidad = producto.cantidad + cantidad
-            self.cursor.execute('''UPDATE productos SET cantidad = ? WHERE id = ?''', (nueva_cantidad, id_producto))
-            self.conexion.commit()
+            self.ejecutar_consulta('''UPDATE productos SET cantidad = ? WHERE id = ?''', (nueva_cantidad, id_producto))
             return True
         return False
 
     def registrar_venta(self, id_producto, cantidad):
         producto = self.obtener_producto_por_id(id_producto)
-        if (producto and producto.cantidad >= cantidad):
+        if producto and producto.cantidad >= cantidad:
             nueva_cantidad = producto.cantidad - cantidad
-            self.cursor.execute('''UPDATE productos SET cantidad = ? WHERE id = ?''', (nueva_cantidad, id_producto))
+            self.ejecutar_consulta('''UPDATE productos SET cantidad = ? WHERE id = ?''', (nueva_cantidad, id_producto))
             fecha = datetime.now().strftime("%Y-%m-%d")
-            self.cursor.execute('''INSERT INTO ventas (id_producto, cantidad, fecha) VALUES (?, ?, ?)''', (id_producto, cantidad, fecha))
-            self.conexion.commit()
+            self.ejecutar_consulta('''INSERT INTO ventas (id_producto, cantidad, fecha) VALUES (?, ?, ?)''', (id_producto, cantidad, fecha))
             return True
         return False
 
     def modificar_producto(self, id_producto, nueva_cantidad, nuevo_nombre, nuevo_precio):
-        self.cursor.execute('''UPDATE productos SET cantidad = ?, nombre = ?, precio = ? WHERE id = ?''', (nueva_cantidad, nuevo_nombre, nuevo_precio, id_producto))
-        self.conexion.commit()
+        self.ejecutar_consulta('''UPDATE productos SET cantidad = ?, nombre = ?, precio = ? WHERE id = ?''', (nueva_cantidad, nuevo_nombre, nuevo_precio, id_producto))
 
     def obtener_todos_los_productos(self):
         try:
@@ -149,17 +149,17 @@ class GestorProductosUI:
 
     def añadir_producto(self):
         nombre = simpledialog.askstring("Nombre del Producto", "Ingrese el nombre del producto:")
-        if nombre is None:
+        if not nombre:
             return
-        cantidad = simpledialog.askinteger("Cantidad", "Ingrese la cantidad del producto:")
-        if cantidad is None:
-            return
-        precio = simpledialog.askfloat("Precio", "Ingrese el precio del producto:")
-        if precio is None:
-            return
-
-        self.base_de_datos.agregar_producto(cantidad, nombre, precio)
-        messagebox.showinfo("Producto Añadido", f"Producto '{nombre}' añadido correctamente.")
+        try:
+            cantidad = simpledialog.askinteger("Cantidad", "Ingrese la cantidad del producto:")
+            precio = simpledialog.askfloat("Precio", "Ingrese el precio del producto:")
+            if cantidad is None or precio is None:
+                return
+            self.base_de_datos.agregar_producto(cantidad, nombre, precio)
+            messagebox.showinfo("Producto Añadido", f"Producto '{nombre}' añadido correctamente.")
+        except ValueError:
+            messagebox.showerror("Error", "Valores inválidos para cantidad o precio.")
 
     def ver_todas_ventas(self):
         ventas = self.base_de_datos.obtener_todas_ventas()
@@ -190,7 +190,12 @@ class GestorProductosUI:
 
     def ver_ventas_por_fecha(self):
         fecha = simpledialog.askstring("Fecha", "Ingrese la fecha (YYYY-MM-DD):")
-        if fecha is None:
+        if not fecha:
+            return
+        try:
+            datetime.strptime(fecha, "%Y-%m-%d")
+        except ValueError:
+            messagebox.showerror("Error", "Formato de fecha inválido.")
             return
 
         ventas = self.base_de_datos.obtener_ventas_por_fecha(fecha)
