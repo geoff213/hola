@@ -33,7 +33,6 @@ class BaseDeDatos:
                                     nombre TEXT,
                                     precio REAL
                                 )''')
-
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS ventas (
                                     id INTEGER PRIMARY KEY,
                                     id_producto INTEGER,
@@ -50,52 +49,43 @@ class BaseDeDatos:
     def obtener_producto_por_nombre(self, nombre):
         self.cursor.execute('''SELECT * FROM productos WHERE nombre = ?''', (nombre,))
         producto = self.cursor.fetchone()
-        if producto:
+        if (producto):
             return Producto(*producto)
         return None
 
     def obtener_producto_por_id(self, id):
         self.cursor.execute('''SELECT * FROM productos WHERE id = ?''', (id,))
         producto = self.cursor.fetchone()
-        if producto:
+        if (producto):
             return Producto(*producto)
         return None
 
     def agregar_producto(self, cantidad, nombre, precio):
         self.cursor.execute('''INSERT INTO productos (cantidad, nombre, precio) VALUES (?, ?, ?)''', (cantidad, nombre, precio))
         self.conexion.commit()
+
     def obtener_todas_ventas(self):
         self.cursor.execute('''SELECT * FROM ventas''')
         ventas = self.cursor.fetchall()
-        if ventas:
+        if (ventas):
             return [Venta(*venta) for venta in ventas]
         return []
 
     def obtener_ventas_por_fecha(self, fecha):
         self.cursor.execute('''SELECT * FROM ventas WHERE fecha = ?''', (fecha,))
         ventas = self.cursor.fetchall()
-        if ventas:
+        if (ventas):
             return [Venta(*venta) for venta in ventas]
         return []
+
     def calcular_estadisticas_ventas(self):
-        self.cursor.execute('''SELECT COUNT(id) AS total_ventas, 
-                                  SUM(cantidad) AS cantidad_total, 
-                                  SUM(cantidad * (SELECT precio FROM productos WHERE productos.id = ventas.id)) AS monto_total 
-                           FROM ventas''')
-        estadisticas=self.cursor.fetchone()
-        if estadisticas:
-                 total_ventas:['total_ventas']
-                 cantidad_total: ['cantidad_total']
-                 monto_total: ['monto_total'] 
-        else:
-            total_ventas=0
-            cantidad_total =0
-            monto_total=0
-        return {'total_ventas': 0, 'cantidad_total': 0, 'monto_total': 0}
-    
+        self.cursor.execute('''SELECT COUNT(*), SUM(cantidad * (SELECT precio FROM productos WHERE productos.id = ventas.id_producto)) FROM ventas''')
+        total_ventas, monto_total = self.cursor.fetchone()
+        return {'total_ventas': total_ventas, 'monto_total': monto_total if monto_total is not None else 0.0}
+
     def ingresar_stock(self, id_producto, cantidad):
         producto = self.obtener_producto_por_id(id_producto)
-        if producto:
+        if (producto):
             nueva_cantidad = producto.cantidad + cantidad
             self.cursor.execute('''UPDATE productos SET cantidad = ? WHERE id = ?''', (nueva_cantidad, id_producto))
             self.conexion.commit()
@@ -104,7 +94,7 @@ class BaseDeDatos:
 
     def registrar_venta(self, id_producto, cantidad):
         producto = self.obtener_producto_por_id(id_producto)
-        if producto and producto.cantidad >= cantidad:
+        if (producto and producto.cantidad >= cantidad):
             nueva_cantidad = producto.cantidad - cantidad
             self.cursor.execute('''UPDATE productos SET cantidad = ? WHERE id = ?''', (nueva_cantidad, id_producto))
             fecha = datetime.now().strftime("%Y-%m-%d")
@@ -125,6 +115,7 @@ class BaseDeDatos:
         except sqlite3.Error as e:
             print("Error al obtener productos:", e)
             return []
+
     def productos_sin_stock(self):
         try:
             self.cursor.execute('''SELECT * FROM productos WHERE cantidad = 0''')
@@ -134,11 +125,6 @@ class BaseDeDatos:
             print("Error al obtener productos sin stock:", e)
             return []
 
-    
-
-
-    # Métodos similares para modificar, eliminar y obtener productos, y para manejar ventas
-
 class GestorProductosUI:
     def __init__(self, root):
         self.base_de_datos = BaseDeDatos('productos.db')
@@ -147,47 +133,58 @@ class GestorProductosUI:
         self.setup_ui()
 
     def setup_ui(self):
-        # Crear la interfaz de usuario
         frame = Frame(self.root, padx=20, pady=20)
         frame.pack(padx=10, pady=10)
-        def setup_ui(self):
-    
-          
-         Label(frame, text="Gestión de Productos", font=("Helvetica", 16, "bold")).grid(row=0, columnspan=2, pady=10)
-        Button(frame, text="Ver Stock", command=self.ver_stock, width=20, bg="#9C27B0", fg="white").grid(row=5, column=0, sticky="ew", padx=5, pady=5)
-        Button(frame, text="Añadir Producto", command=self.añadir_producto, width=20, bg="#4CAF50", fg="white").grid(row=1, column=0, sticky="ew", padx=5, pady=5)
-        Button(frame, text="Ver Ventas por Fecha", command=self.ver_ventas_por_fecha, width=20, bg="#00BCD4", fg="white").grid(row=2, column=0, sticky="ew", padx=5, pady=5)
-        Button(frame, text="Ver Todas las Ventas", command=self.ver_todas_ventas, width=20, bg="#FFC107", fg="white").grid(row=1, column=1, sticky="ew", padx=5, pady=5)
-        Button(frame, text="Estadísticas de Ventas", command=self.estadisticas_ventas, width=20, bg="#E91E63", fg="white").grid(row=2, column=1, sticky="ew", padx=5, pady=5)
-        Button(frame, text="Ingresar Stock", command=self.ingresar_stock, width=20, bg="#2196F3", fg="white").grid(row=2, column=0, sticky="ew", padx=5, pady=5)
-        Button(frame, text="Registrar Venta", command=self.registrar_venta, width=20, bg="#FF9800", fg="white").grid(row=3, column=0, sticky="ew", padx=5, pady=5)
-        Button(frame, text="Modificar Producto", command=self.modificar_producto, width=20, bg="#F44336", fg="white").grid(row=4, column=0, sticky="ew", padx=5, pady=5)
-        Button(frame, text="Producto sin stock", command=self.productos_sin_stock, width=20, bg="#F44336", fg="white").grid(row=4, column=1, sticky="ew", padx=5, pady=5)
 
+        Label(frame, text="Gestión de Productos", font=("Helvetica", 16, "bold")).grid(row=0, columnspan=2, pady=10)
+        Button(frame, text="Ver Stock", command=self.ver_stock, width=20, bg="#9C27B0", fg="white").grid(row=1, column=0, sticky="ew", padx=5, pady=5)
+        Button(frame, text="Añadir Producto", command=self.añadir_producto, width=20, bg="#4CAF50", fg="white").grid(row=2, column=0, sticky="ew", padx=5, pady=5)
+        Button(frame, text="Ver Ventas por Fecha", command=self.ver_ventas_por_fecha, width=20, bg="#00BCD4", fg="white").grid(row=3, column=0, sticky="ew", padx=5, pady=5)
+        Button(frame, text="Ver Todas las Ventas", command=self.ver_todas_ventas, width=20, bg="#FFC107", fg="white").grid(row=4, column=0, sticky="ew", padx=5, pady=5)
+        Button(frame, text="Estadísticas de Ventas", command=self.estadisticas_ventas, width=20, bg="#E91E63", fg="white").grid(row=5, column=0, sticky="ew", padx=5, pady=5)
+        Button(frame, text="Ingresar Stock", command=self.ingresar_stock, width=20, bg="#2196F3", fg="white").grid(row=1, column=1, sticky="ew", padx=5, pady=5)
+        Button(frame, text="Registrar Venta", command=self.registrar_venta, width=20, bg="#FF9800", fg="white").grid(row=2, column=1, sticky="ew", padx=5, pady=5)
+        Button(frame, text="Modificar Producto", command=self.modificar_producto, width=20, bg="#F44336", fg="white").grid(row=3, column=1, sticky="ew", padx=5, pady=5)
+        Button(frame, text="Producto sin stock", command=self.productos_sin_stock, width=20, bg="#795548", fg="white").grid(row=4, column=1, sticky="ew", padx=5, pady=5)
 
-       
-   
     def añadir_producto(self):
+        nombre = simpledialog.askstring("Nombre del Producto", "Ingrese el nombre del producto:")
+        if nombre is None:
+            return
         cantidad = simpledialog.askinteger("Cantidad", "Ingrese la cantidad del producto:")
         if cantidad is None:
-            return
-        nombre = simpledialog.askstring("Nombre", "Ingrese el nombre del producto:")
-        if nombre is None:
             return
         precio = simpledialog.askfloat("Precio", "Ingrese el precio del producto:")
         if precio is None:
             return
 
         self.base_de_datos.agregar_producto(cantidad, nombre, precio)
-        messagebox.showinfo('Información', 'Producto añadido correctamente.')
+        messagebox.showinfo("Producto Añadido", f"Producto '{nombre}' añadido correctamente.")
 
     def ver_todas_ventas(self):
         ventas = self.base_de_datos.obtener_todas_ventas()
         if ventas:
-            ventas_info = "Todas las ventas:\n\n"
+            ventas_window = Toplevel(self.root)
+            ventas_window.title("Todas las Ventas")
+
+            ventas_text = Text(ventas_window, wrap="none")
+            scrollbar_y = Scrollbar(ventas_window, orient='vertical', command=ventas_text.yview)
+            scrollbar_x = Scrollbar(ventas_window, orient='horizontal', command=ventas_text.xview)
+            ventas_text.configure(yscrollcommand=scrollbar_y.set, xscrollcommand=scrollbar_x.set)
+            
+            ventas_text.pack(side="left", fill="both", expand=True)
+            scrollbar_y.pack(side="right", fill="y")
+            scrollbar_x.pack(side="bottom", fill="x")
+
+            ventas_info = '-' * 80 + '\n'
+            ventas_info += '{:<10} {:<15} {:<10} {:<20}\n'.format('ID', 'ID Producto', 'Cantidad', 'Fecha')
+            ventas_info += '-' * 80 + '\n'
             for venta in ventas:
-                ventas_info += f"ID: {venta.id}\nID Producto: {venta.id_producto}\nCantidad: {venta.cantidad}\nFecha: {venta.fecha}\n\n"
-            messagebox.showinfo("Todas las Ventas", ventas_info)
+                ventas_info += '{:<10} {:<15} {:<10} {:<20}\n'.format(venta.id, venta.id_producto, venta.cantidad, venta.fecha)
+            ventas_info += '-' * 80 + '\n'
+            
+            ventas_text.insert('1.0', ventas_info)
+            ventas_text.configure(state='disabled')
         else:
             messagebox.showinfo("Todas las Ventas", "No hay ventas registradas.")
 
@@ -207,10 +204,10 @@ class GestorProductosUI:
 
     def estadisticas_ventas(self):
         estadisticas = self.base_de_datos.calcular_estadisticas_ventas()
-        if estadisticas:
-            messagebox.showinfo("Estadísticas de Ventas", f"Total de Ventas: {estadisticas['total_ventas']}\nMonto Total Vendido: {estadisticas['monto_total']}")
-        else:
-            messagebox.showinfo("Estadísticas de Ventas", "No hay ventas registradas.")
+        messagebox.showinfo("Estadísticas de Ventas", 
+                            f"Total de Ventas: {estadisticas['total_ventas']}\n"
+                            f"Monto Total Vendido: {estadisticas['monto_total']:.2f}")
+
     def ingresar_stock(self):
         id_producto = simpledialog.askinteger("ID del Producto", "Ingrese el ID del producto:")
         if id_producto is None:
@@ -289,19 +286,6 @@ class GestorProductosUI:
             messagebox.showinfo('Productos Sin Stock', productos_info)
         else:
             messagebox.showinfo('Información', 'No hay productos sin stock.')
-
-
-
-
-
-
-
-
-
-
-    
-
-
 
 def main():
     root = Tk()
