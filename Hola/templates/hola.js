@@ -56,8 +56,23 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="description">Producto 4</div>
                         <button data-title="Producto 4" data-description="Descripción del Producto 4" data-img="img/hola.avif">Ver Detalles</button>
                     </div>
-                </div>
+                     <div class="image-box col-sm-6 col-md-4 col-lg-3">
+                       <img src="img/hola.avif" alt="Imagen 4">
+                       <div class="description">Producto 4</div>
+                       <button data-title="Producto 4" data-description="Descripción del Producto 4" data-img="img/hola.avif">Ver Detalles</button>
+                    </div>
+                    <div class="image-box col-sm-6 col-md-4 col-lg-3">
+                       <img src="img/hola.avif" alt="Imagen 4">
+                       <div class="description">Producto 4</div>
+                       <button data-title="Producto 4" data-description="Descripción del Producto 4" data-img="img/hola.avif">Ver Detalles</button>
+                    </div>
+                       <div class="image-box col-sm-6 col-md-4 col-lg-3">
+                       <img src="img/hola.avif" alt="Imagen 4">
+                       <div class="description">Producto 4</div>
+                       <button data-title="Producto 4" data-description="Descripción del Producto 4" data-img="img/hola.avif">Ver Detalles</button>
+                    </div>
             </section>
+            
         `;
         addImageBoxEvents();
     }
