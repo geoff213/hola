@@ -4,14 +4,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const cartItemsList = document.getElementById('cart-items');
     const cartCount = document.getElementById('cart-count');
     const checkoutBtn = document.getElementById('checkout-btn');
+    const productModal = $('#productModal');
+    const productModalLabel = document.getElementById('productModalLabel');
+    const productModalImage = document.getElementById('productModalImage');
+    const productModalDescription = document.getElementById('productModalDescription');
+    const productModalButton = document.getElementById('productModalButton');
 
     let cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+    let currentProduct = {};
 
     function updateCart() {
         cartItemsList.innerHTML = '';
         cartItems.forEach((item, index) => {
             const li = document.createElement('li');
-            li.textContent = item;
+            li.textContent = item.description;
             const removeBtn = document.createElement('button');
             removeBtn.textContent = 'Eliminar';
             removeBtn.addEventListener('click', () => {
@@ -28,33 +34,28 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadGalleryContent() {
         mainContent.innerHTML = `
             <section class="image-section">
-                <h2>Imágenes</h2>
-                <div class="image-gallery">
-                    <div class="image-box">
+                <h2></h2>
+                <div class="image-gallery row">
+                    <div class="image-box col-sm-6 col-md-4 col-lg-3">
                         <img src="img/hola.avif" alt="Imagen 1">
-                        <div class="description">hola 1</div>
-                        <button>Agregar al Carrito</button>
+                        <div class="description">Producto 1</div>
+                        <button data-title="Producto 1" data-description="Descripción del Producto 1" data-img="img/hola.avif">Ver Detalles</button>
                     </div>
-                    <div class="image-box">
+                    <div class="image-box col-sm-6 col-md-4 col-lg-3">
                         <img src="img/hola.avif" alt="Imagen 2">
-                        <div class="description">hola 2</div>
-                        <button>Agregar al Carrito</button>
+                        <div class="description">Producto 2</div>
+                        <button data-title="Producto 2" data-description="Descripción del Producto 2" data-img="img/hola.avif">Ver Detalles</button>
                     </div>
-                    <div class="image-box">
+                    <div class="image-box col-sm-6 col-md-4 col-lg-3">
                         <img src="img/hola.avif" alt="Imagen 3">
-                        <div class="description">hola 3</div>
-                        <button>Agregar al Carrito</button>
+                        <div class="description">Producto 3</div>
+                        <button data-title="Producto 3" data-description="Descripción del Producto 3" data-img="img/hola.avif">Ver Detalles</button>
                     </div>
-                    <div class="image-box">
-                    <img src="img/hola.avif" alt="Imagen 3">
-                    <div class="description">hola 3</div>
-                    <button>Agregar al Carrito</button>
-                </div>
-                <div class="image-box">
-                <img src="img/hola.avif" alt="Imagen 3">
-                <div class="description">hola 3</div>
-                <button>Agregar al Carrito</button>
-            </div>
+                    <div class="image-box col-sm-6 col-md-4 col-lg-3">
+                        <img src="img/hola.avif" alt="Imagen 4">
+                        <div class="description">Producto 4</div>
+                        <button data-title="Producto 4" data-description="Descripción del Producto 4" data-img="img/hola.avif">Ver Detalles</button>
+                    </div>
                 </div>
             </section>
         `;
@@ -65,10 +66,24 @@ document.addEventListener('DOMContentLoaded', function() {
         const buttons = document.querySelectorAll('.image-box button');
         buttons.forEach(button => {
             button.addEventListener('click', function() {
-                const description = this.previousElementSibling.textContent;
-                cartItems.push(description);
-                updateCart();
+                const title = this.getAttribute('data-title');
+                const description = this.getAttribute('data-description');
+                const img = this.getAttribute('data-img');
+
+                currentProduct = { title, description, img };
+
+                productModalLabel.textContent = title;
+                productModalDescription.textContent = description;
+                productModalImage.src = img;
+
+                productModal.modal('show');
             });
+        });
+
+        productModalButton.addEventListener('click', function() {
+            cartItems.push(currentProduct);
+            updateCart();
+            productModal.modal('hide');
         });
     }
 
@@ -82,17 +97,17 @@ document.addEventListener('DOMContentLoaded', function() {
             <form id="contact-form">
                 <div class="form-group">
                     <label for="name">Nombre:</label>
-                    <input type="text" id="name" name="name" required>
+                    <input type="text" id="name" name="name" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label for="email">Correo Electrónico:</label>
-                    <input type="email" id="email" name="email" required>
+                    <input type="email" id="email" name="email" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label for="message">Mensaje:</label>
-                    <textarea id="message" name="message" rows="4" required></textarea>
+                    <textarea id="message" name="message" class="form-control" rows="4" required></textarea>
                 </div>
-                <button type="submit">Enviar Mensaje</button>
+                <button type="submit" class="btn btn-primary">Enviar Mensaje</button>
             </form>
         `;
         addFormSubmitEvent();
@@ -155,12 +170,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-
     if (cartBtn) {
         cartBtn.addEventListener('click', function(event) {
             event.preventDefault();
             cartContainer.style.display = cartContainer.style.display === 'block' ? 'none' : 'block';
         });
     }
-});
 
+    updateCart();
+});

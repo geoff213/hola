@@ -33,8 +33,7 @@ nav a {
 .image-section {
     display: flex;
     flex-wrap: wrap;
-    justify-content:center;
-    
+    justify-content: center;
 }
 
 .image-box {
@@ -46,6 +45,7 @@ nav a {
     text-align: center;
     width: 200px;
     transition: transform 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
 }
 
 .image-box img {
@@ -70,21 +70,19 @@ nav a {
 .image-box:hover {
     transform: scale(1.05);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    
 }
 
 #cart-container {
     position: fixed;
     top: 0;
-    right:0;
+    right: 0;
     width: 300px;
     height: 100%;
     background-color: white;
     border-left: 1px solid #ddd;
-    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
     padding: 1em;
     display: none;
-    
 }
 
 #cart-items {
@@ -117,7 +115,7 @@ footer {
     color: white;
     text-align: center;
     padding: 1em;
-    position:center ;
+    position: center;
     bottom: 0;
     width: 100%;
 }

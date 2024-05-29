@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web de Compras</title>
+    <title>Galería de Productos</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/CSS.css">
 </head>
 <body>
     <header>
-        <h1>Mi Tienda</h1>
+        <h1>Galería de Productos</h1>
     </header>
     <nav>
         <a href="#" id="gallery-btn">Galería</a>
@@ -16,20 +17,44 @@
         <a href="#" id="contact-btn">Contacto</a>
         <a href="#" id="cart-btn">Carrito (<span id="cart-count">0</span>)</a>
     </nav>
-    <main id="main-content"></main>
+    <div id="main-content" class="container"></div>
     <div id="cart-container">
         <h2>Carrito de Compras</h2>
-        <ul id="cart-items"></ul>
-        <button id="checkout-btn">Comprar</button>
+        <ul id="cart-items" class="list-group"></ul>
+        <button id="checkout-btn" class="btn btn-primary">Pagar</button>
     </div>
     <footer>
+        <p>Derechos Reservados &copy; 2024</p>
         <div class="social-icons">
-            <a href="https://facebook.com" target="_blank">Facebook</a>
-            <a href="https://twitter.com" target="_blank">Twitter</a>
-            <a href="https://instagram.com" target="_blank">Instagram</a>
+            <a href="#">&#x1F30E;</a>
+            <a href="#">&#x1F426;</a>
+            <a href="#">&#x1F4F7;</a>
         </div>
-        <p>&copy; 2024 Mi Tienda</p>
     </footer>
+    <div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productModalLabel">Product Title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <img id="productModalImage" src="" alt="Product Image" class="img-fluid mb-3">
+                    <p id="productModalDescription"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button id="productModalButton" type="button" class="btn btn-primary">Agregar al Carrito</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="hola.js"></script>
 </body>
 </html>
