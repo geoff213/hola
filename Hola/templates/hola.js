@@ -17,63 +17,66 @@ document.addEventListener('DOMContentLoaded', function() {
         cartItemsList.innerHTML = '';
         cartItems.forEach((item, index) => {
             const li = document.createElement('li');
-            li.textContent = item.description;
-            const removeBtn = document.createElement('button');
-            removeBtn.textContent = 'Eliminar';
-            removeBtn.addEventListener('click', () => {
-                cartItems.splice(index, 1);
-                updateCart();
-            });
-            li.appendChild(removeBtn);
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.innerHTML = `
+                <span>${item.description}</span>
+                <div>
+                    <input type="number" value="${item.quantity}" min="1" data-index="${index}" class="cart-quantity-input">
+                    <button class="btn btn-danger btn-sm remove-btn" data-index="${index}">Eliminar</button>
+                </div>
+            `;
             cartItemsList.appendChild(li);
         });
         cartCount.textContent = cartItems.length;
         localStorage.setItem('cartItems', JSON.stringify(cartItems));
+
+        document.querySelectorAll('.cart-quantity-input').forEach(input => {
+            input.addEventListener('change', updateQuantity);
+        });
+        document.querySelectorAll('.remove-btn').forEach(button => {
+            button.addEventListener('click', removeFromCart);
+        });
+    }
+
+    function updateQuantity(event) {
+        const index = event.target.dataset.index;
+        cartItems[index].quantity = parseInt(event.target.value, 10);
+        updateCart();
+    }
+
+    function removeFromCart(event) {
+        const index = event.target.dataset.index;
+        cartItems.splice(index, 1);
+        updateCart();
     }
 
     function loadGalleryContent() {
+        const products = [
+            { title: "Producto 1", description: "Descripción del Producto 1", img: "img/hola.avif" },
+            { title: "Producto 2", description: "Descripción del Producto 2", img: "img/hola.avif" },
+            { title: "Producto 3", description: "Descripción del Producto 3", img: "img/hola.avif" },
+            { title: "Producto 4", description: "Descripción del Producto 4", img: "img/hola.avif" }
+        ];
+
         mainContent.innerHTML = `
             <section class="image-section">
-                <h2></h2>
-                <div class="image-gallery row">
-                    <div class="image-box col-sm-6 col-md-4 col-lg-3">
-                        <img src="img/hola.avif" alt="Imagen 1">
-                        <div class="description">Producto 1</div>
-                        <button data-title="Producto 1" data-description="Descripción del Producto 1" data-img="img/hola.avif">Ver Detalles</button>
-                    </div>
-                    <div class="image-box col-sm-6 col-md-4 col-lg-3">
-                        <img src="img/hola.avif" alt="Imagen 2">
-                        <div class="description">Producto 2</div>
-                        <button data-title="Producto 2" data-description="Descripción del Producto 2" data-img="img/hola.avif">Ver Detalles</button>
-                    </div>
-                    <div class="image-box col-sm-6 col-md-4 col-lg-3">
-                        <img src="img/hola.avif" alt="Imagen 3">
-                        <div class="description">Producto 3</div>
-                        <button data-title="Producto 3" data-description="Descripción del Producto 3" data-img="img/hola.avif">Ver Detalles</button>
-                    </div>
-                    <div class="image-box col-sm-6 col-md-4 col-lg-3">
-                        <img src="img/hola.avif" alt="Imagen 4">
-                        <div class="description">Producto 4</div>
-                        <button data-title="Producto 4" data-description="Descripción del Producto 4" data-img="img/hola.avif">Ver Detalles</button>
-                    </div>
-                     <div class="image-box col-sm-6 col-md-4 col-lg-3">
-                       <img src="img/hola.avif" alt="Imagen 4">
-                       <div class="description">Producto 4</div>
-                       <button data-title="Producto 4" data-description="Descripción del Producto 4" data-img="img/hola.avif">Ver Detalles</button>
-                    </div>
-                    <div class="image-box col-sm-6 col-md-4 col-lg-3">
-                       <img src="img/hola.avif" alt="Imagen 4">
-                       <div class="description">Producto 4</div>
-                       <button data-title="Producto 4" data-description="Descripción del Producto 4" data-img="img/hola.avif">Ver Detalles</button>
-                    </div>
-                       <div class="image-box col-sm-6 col-md-4 col-lg-3">
-                       <img src="img/hola.avif" alt="Imagen 4">
-                       <div class="description">Producto 4</div>
-                       <button data-title="Producto 4" data-description="Descripción del Producto 4" data-img="img/hola.avif">Ver Detalles</button>
-                    </div>
+                <h2>Galería de Productos</h2>
+                <div class="image-gallery row"></div>
             </section>
-            
         `;
+
+        const imageGallery = mainContent.querySelector('.image-gallery');
+        products.forEach(product => {
+            const div = document.createElement('div');
+            div.className = 'image-box col-sm-6 col-md-4 col-lg-3';
+            div.innerHTML = `
+                <img src="${product.img}" alt="${product.title}">
+                <div class="description">${product.title}</div>
+                <button data-title="${product.title}" data-description="${product.description}" data-img="${product.img}">Ver Detalles</button>
+            `;
+            imageGallery.appendChild(div);
+        });
+
         addImageBoxEvents();
     }
 
@@ -85,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const description = this.getAttribute('data-description');
                 const img = this.getAttribute('data-img');
 
-                currentProduct = { title, description, img };
+                currentProduct = { title, description, img, quantity: 1 };
 
                 productModalLabel.textContent = title;
                 productModalDescription.textContent = description;
@@ -94,36 +97,37 @@ document.addEventListener('DOMContentLoaded', function() {
                 productModal.modal('show');
             });
         });
-
-        productModalButton.addEventListener('click', function() {
-            cartItems.push(currentProduct);
-            updateCart();
-            productModal.modal('hide');
-        });
     }
 
     function loadAboutContent() {
-        mainContent.innerHTML = '<h2>Acerca de Nosotros</h2><p>Información sobre nosotros...</p>';
+        mainContent.innerHTML = `
+            <section class="about-section">
+                <h2>Acerca de</h2>
+                <p>Esta es la sección de acerca de.</p>
+            </section>
+        `;
     }
 
     function loadContactContent() {
         mainContent.innerHTML = `
-            <h2>Contacto</h2>
-            <form id="contact-form">
-                <div class="form-group">
-                    <label for="name">Nombre:</label>
-                    <input type="text" id="name" name="name" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Correo Electrónico:</label>
-                    <input type="email" id="email" name="email" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="message">Mensaje:</label>
-                    <textarea id="message" name="message" class="form-control" rows="4" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Enviar Mensaje</button>
-            </form>
+            <section class="contact-section">
+                <h2>Contacto</h2>
+                <form id="contact-form">
+                    <div class="form-group">
+                        <label for="name">Nombre:</label>
+                        <input type="text" id="name" name="name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Mensaje:</label>
+                        <textarea id="message" name="message" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enviar</button>
+                </form>
+            </section>
         `;
         addFormSubmitEvent();
     }
@@ -137,60 +141,39 @@ document.addEventListener('DOMContentLoaded', function() {
             const email = form.elements['email'].value;
             const message = form.elements['message'].value;
 
-            console.log('Nombre:', name);
-            console.log('Correo Electrónico:', email);
-            console.log('Mensaje:', message);
+            if (!name || !email || !message) {
+                alert('Todos los campos son obligatorios.');
+                return;
+            }
 
-            const contactData = {
-                name: name,
-                email: email,
-                message: message
-            };
-
+            const contactData = { name, email, message };
             let contacts = JSON.parse(localStorage.getItem('contacts')) || [];
             contacts.push(contactData);
             localStorage.setItem('contacts', JSON.stringify(contacts));
 
             form.reset();
+            alert('Mensaje enviado con éxito.');
         });
     }
 
-    if (mainContent) {
-        loadGalleryContent();
-    }
+    document.getElementById('gallery-btn').addEventListener('click', loadGalleryContent);
+    document.getElementById('about-btn').addEventListener('click', loadAboutContent);
+    document.getElementById('contact-btn').addEventListener('click', loadContactContent);
+    document.getElementById('cart-btn').addEventListener('click', function() {
+        cartContainer.style.display = cartContainer.style.display === 'none' ? 'block' : 'none';
+    });
 
-    const galleryBtn = document.getElementById('gallery-btn');
-    const aboutBtn = document.getElementById('about-btn');
-    const contactBtn = document.getElementById('contact-btn');
-    const cartBtn = document.getElementById('cart-btn');
-
-    if (galleryBtn) {
-        galleryBtn.addEventListener('click', function(event) {
-            event.preventDefault();
-            loadGalleryContent();
-        });
-    }
-
-    if (aboutBtn) {
-        aboutBtn.addEventListener('click', function(event) {
-            event.preventDefault();
-            loadAboutContent();
-        });
-    }
-
-    if (contactBtn) {
-        contactBtn.addEventListener('click', function(event) {
-            event.preventDefault();
-            loadContactContent();
-        });
-    }
-
-    if (cartBtn) {
-        cartBtn.addEventListener('click', function(event) {
-            event.preventDefault();
-            cartContainer.style.display = cartContainer.style.display === 'block' ? 'none' : 'block';
-        });
-    }
+    productModalButton.addEventListener('click', function() {
+        const existingItemIndex = cartItems.findIndex(item => item.title === currentProduct.title);
+        if (existingItemIndex > -1) {
+            cartItems[existingItemIndex].quantity += currentProduct.quantity;
+        } else {
+            cartItems.push(currentProduct);
+        }
+        updateCart();
+        productModal.modal('hide');
+    });
 
     updateCart();
+    loadGalleryContent();
 });

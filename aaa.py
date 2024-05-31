@@ -119,3 +119,22 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+def calcular_estadisticas_ventas(self):
+    self.cursor.execute('''SELECT COUNT(id) AS total_ventas, 
+                                  SUM(cantidad) AS cantidad_total, 
+                                  SUM(cantidad * (SELECT precio FROM productos WHERE productos.id = ventas.id)) AS monto_total 
+                           FROM ventas
+                           WHERE estado = 'completa' ''')  # Filtramos solo las ventas completadas
+    estadisticas = self.cursor.fetchone()
+    if estadisticas:
+        total_ventas = estadisticas['total_ventas']
+        cantidad_total = estadisticas['cantidad_total']
+        monto_total = estadisticas['monto_total']
+    else:
+        total_ventas = 0
+        cantidad_total = 0
+        monto_total = 0
+    return {'total_ventas': total_ventas, 'cantidad_total': cantidad_total, 'monto_total': monto_total}
