@@ -3,6 +3,7 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 import random   
 
+
 class Movimiento:
     def __init__(self, nombre, tipo, poder):
         self.nombre = nombre
@@ -173,20 +174,21 @@ def seleccionar_pokemon():
         Movimiento('Voz Cautivadora', 'agua', 60),
         Movimiento('Latigazo', 'planta', 70),
         Movimiento('Tambor', 'planta', 85),
+    
     ]
 
     pokemones = [
         Pokemon('Charizard', ['fuego', 'volador'], movimientos[:4], {'ataque': 84, 'defensa': 78},'images/charizard.png'),
-        Pokemon('Blastoise', 'agua', movimientos[4:8], {'ataque': 83, 'defensa': 100}, 'images/blastoise.png'),
-        Pokemon('Venusaur', ['planta', 'veneno'], movimientos[8:12], {'ataque': 82, 'defensa': 83}, 'images/venusaur.png'),
-        Pokemon('Pikachu', 'eléctrico', movimientos[12:16], {'ataque': 55, 'defensa': 40}, 'images/pikachu.png'),
-        Pokemon('Gengar', 'fantasma', movimientos[0:4], {'ataque': 65, 'defensa': 60}, 'images/gengar.png'),
-        Pokemon('Lucario', ['lucha', 'acero'], movimientos[4:8], {'ataque': 110, 'defensa': 70}, 'images/lucario.png'),
-        Pokemon('Greninja', ['agua', 'siniestro'], movimientos[8:12], {'ataque': 95, 'defensa': 67}, 'images/greninja.png'),
-        Pokemon('Incineroar', ['fuego', 'siniestro'], movimientos[12:16], {'ataque': 115, 'defensa': 90}, 'images/incineroar.png'),
-        Pokemon('Primarina', ['agua', 'hada'], movimientos[0:4], {'ataque': 74, 'defensa': 74}, 'images/primarina.png'),
-        Pokemon('Rillaboom', ['planta'], movimientos[4:8], {'ataque': 125, 'defensa': 90}, 'images/rillaboom.png'),
-        
+        Pokemon('Blastoise', 'agua', movimientos[:4], {'ataque': 83, 'defensa': 100}, 'images/blastoise.png'),
+        Pokemon('Venusaur', ['planta', 'veneno'], movimientos[:4], {'ataque': 82, 'defensa': 83}, 'images/venusaur.png'),
+        Pokemon('Pikachu', 'eléctrico', movimientos[:4], {'ataque': 55, 'defensa': 40}, 'images/pikachu.png'),
+        Pokemon('Gengar', 'fantasma', movimientos[4:6], {'ataque': 65, 'defensa': 60}, 'images/gengar.png'),
+        Pokemon('Lucario', ['lucha', 'acero'], movimientos[6:8], {'ataque': 110, 'defensa': 70}, 'images/lucario.png'),
+        Pokemon('Greninja', ['agua', 'siniestro'], movimientos[8:10], {'ataque': 95, 'defensa': 67}, 'images/greninja.png'),
+        Pokemon('Incineroar', ['fuego', 'siniestro'], movimientos[10:12], {'ataque': 115, 'defensa': 90}, 'images/incineroar.png'),
+        Pokemon('Primarina', ['agua', 'hada'], movimientos[12:14], {'ataque': 74, 'defensa': 74}, 'images/primarina.png'),
+        Pokemon('Rillaboom', ['planta'], movimientos[14:16], {'ataque': 125, 'defensa': 90}, 'images/rillaboom.png'),
+      
     ]
 
     return random.choice(pokemones)
